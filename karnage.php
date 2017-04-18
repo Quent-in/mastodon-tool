@@ -31,6 +31,11 @@ function cmp($a, $b) {
 	?>
 	</select>
 	</label>
+	<label for="unfollow"><input type="checkbox" name="unfollow" id="unfollow" value="true">Je veux supprimer mes abonnements !</label>
+	<label for="status"><input type="checkbox" name="statues" id="status" value="true">Je veux supprimer mes toots !</label>
+	<label for="notification"><input type="checkbox" name="notification" id="notification" value="true">Je veux supprimer mes notifications !</label>
+	<label for="block"><input type="checkbox" name="block" id="block" value="true">Je veux débloquer les personnes bloquées !</label>
+	<label for="unmute"><input type="checkbox" name="unmute" id="unmute" value="true">Je veux redonner la parole aux muets !</label>
 	<input type="submit" value="Envoyer" name="send" id="send"/>
 </form>
 
@@ -42,29 +47,39 @@ if(isset($_POST['send'])) {
 	$mastodon->set_client($create_app['html']['client_id'],$create_app['html']['client_secret']);
 	$login = $mastodon->login($_POST['email'], $_POST['password']);
 	$mastodon->set_token($login['html']['access_token'],$login['html']['token_type']);
-
-	// Unfollow everybody
-	foreach($mastodon->accounts_following($_POST['id'])['html'] as $follower) {
-		$mastodon->accounts_unfollow($follower['id']);
+	if($_POST['unfollow'] == true) {
+		// Unfollow everybody
+		foreach($mastodon->accounts_following($_POST['id'])['html'] as $follower) {
+			$mastodon->accounts_unfollow($follower['id']);
+		}
+		echo '<p>✓ Vos abonnements ont été supprimés.</p>';
 	}
-	echo '<p>✓ Vos abonnements ont été supprimés.</p>';
-	// delete all statues
-	foreach($mastodon->accounts_statuses($_POST['id'])['html'] as $status) {
-		$mastodon->delete_statuses($status['id']);
+	if($_POST['status'] == true) {
+		// delete all statues
+		foreach($mastodon->accounts_statuses($_POST['id'])['html'] as $status) {
+			$mastodon->delete_statuses($status['id']);
+		}
+		echo '<p>✓ Vos toots ont été supprimés.</p>';
 	}
-	echo '<p>✓ Vos toots ont été supprimés.</p>';
-	// delete notification
-	$mastodon->notifications_clear();
-	// unblock everybody
-	foreach($mastodon->blocks($_POST['id'])['html'] as $blocks) {
-			$mastodon->accounts_unblock($blocks['id']);
+	if($_POST['notification'] == true) {
+		// delete notification
+		$mastodon->notifications_clear();
+		echo '<p>✓ Vos notifications ont été supprimées.</p>';
 	}
-	echo '<p>✓ Les personnes bloquées ont été débloqués.</p>';
-	// unmute everybody
-	foreach($mastodon->mutes()['html'] as $blocks) {
-		$mastodon->accounts_unmute($mute['id']);
+	if($_POST['block'] == true) {
+		// unblock everybody
+		foreach($mastodon->blocks($_POST['id'])['html'] as $blocks) {
+				$mastodon->accounts_unblock($blocks['id']);
+		}
+		echo '<p>✓ Les personnes bloquées ont été débloquées.</p>';
 	}
-	echo '<p>✓ Les muets ont retrouvé la parole !</p>';
+	if($_POST['unmute'] == true) {
+		// unmute everybody
+		foreach($mastodon->mutes()['html'] as $blocks) {
+			$mastodon->accounts_unmute($mute['id']);
+		}
+		echo '<p>✓ Les muets ont retrouvé la parole !</p>';
+	}
 }
 ?>
 </body>
