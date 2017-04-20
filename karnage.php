@@ -19,7 +19,6 @@ function cmp($a, $b) {
 <form action="karnage.php" method="post">
 	<label for="email">Le courriel de votre compte : <input name="email" id="email" type="email"></label>
 	<label for="password">Le mot de passe de votre compte : <input name="password" id="password" type="password"></label>
-	<label for="id">L’identifiant de votre compte : <input name="id" id="id" type="number"> (https://framapiaf.org/web/accounts/<b>xxx</b>)</label>
 	<label for="instance">Votre instance : 
 	<select id="instance" name="instance">
 	<?php
@@ -36,6 +35,7 @@ function cmp($a, $b) {
 	<label for="notification"><input type="checkbox" name="notification" id="notification" value="true">Je veux supprimer mes notifications !</label>
 	<label for="block"><input type="checkbox" name="block" id="block" value="true">Je veux débloquer les personnes bloquées !</label>
 	<label for="unmute"><input type="checkbox" name="unmute" id="unmute" value="true">Je veux redonner la parole aux muets !</label>
+	<label for="account"><input type="checkbox" name="account" id="account" value="true">Je veux perdre la personalisation de mon compte !</label>
 	<input type="submit" value="Envoyer" name="send" id="send"/>
 </form>
 
@@ -47,16 +47,17 @@ if(isset($_POST['send'])) {
 	$mastodon->set_client($create_app['html']['client_id'],$create_app['html']['client_secret']);
 	$login = $mastodon->login($_POST['email'], $_POST['password']);
 	$mastodon->set_token($login['html']['access_token'],$login['html']['token_type']);
+	$id = $mastodon->accounts_verify_credentials()['html']['id'];
 	if($_POST['unfollow'] == true) {
 		// Unfollow everybody
-		foreach($mastodon->accounts_following($_POST['id'])['html'] as $follower) {
+		foreach($mastodon->accounts_following($id)['html'] as $follower) {
 			$mastodon->accounts_unfollow($follower['id']);
 		}
 		echo '<p>✓ Vos abonnements ont été supprimés.</p>';
 	}
 	if($_POST['status'] == true) {
 		// delete all statues
-		foreach($mastodon->accounts_statuses($_POST['id'])['html'] as $status) {
+		foreach($mastodon->accounts_statuses($id)['html'] as $status) {
 			$mastodon->delete_statuses($status['id']);
 		}
 		echo '<p>✓ Vos toots ont été supprimés.</p>';
@@ -68,7 +69,7 @@ if(isset($_POST['send'])) {
 	}
 	if($_POST['block'] == true) {
 		// unblock everybody
-		foreach($mastodon->blocks($_POST['id'])['html'] as $blocks) {
+		foreach($mastodon->blocks($id)['html'] as $blocks) {
 				$mastodon->accounts_unblock($blocks['id']);
 		}
 		echo '<p>✓ Les personnes bloquées ont été débloquées.</p>';
@@ -79,6 +80,10 @@ if(isset($_POST['send'])) {
 			$mastodon->accounts_unmute($mute['id']);
 		}
 		echo '<p>✓ Les muets ont retrouvé la parole !</p>';
+	}
+	if($_POST['account'] == true) {
+		$mastodon->accounts_update_credentials(array('display_name'=>'', 'note'=>'', 'avatar'=>'', 'header'=>''));
+		echo '<p>✓ Compte dépersonnalisé !</p>';
 	}
 }
 ?>
