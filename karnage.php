@@ -31,7 +31,7 @@ function cmp($a, $b) {
 	</select>
 	</label>
 	<label for="unfollow"><input type="checkbox" name="unfollow" id="unfollow" value="true">Je veux supprimer mes abonnements !</label>
-	<label for="status"><input type="checkbox" name="statues" id="status" value="true">Je veux supprimer mes toots !</label>
+	<label for="status"><input type="checkbox" name="status" id="status" value="true">Je veux supprimer mes toots !</label>
 	<label for="notification"><input type="checkbox" name="notification" id="notification" value="true">Je veux supprimer mes notifications !</label>
 	<label for="block"><input type="checkbox" name="block" id="block" value="true">Je veux débloquer les personnes bloquées !</label>
 	<label for="unmute"><input type="checkbox" name="unmute" id="unmute" value="true">Je veux redonner la parole aux muets !</label>
