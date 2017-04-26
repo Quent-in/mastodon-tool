@@ -6,6 +6,7 @@ define('INSTANCE', 'mastodon.social');
 define('EMAIL', 'john.doe@example.org');
 define('PASSWORD', 'mysuperpassword');
 define('ATOM_FEED', 'http://example.org/feed.xml');
+$ban_tags = array();
 ");} else {include 'config.php';}
 if(!file_exists('lastsend.txt')) {file_put_contents('lastsend.txt', 0);}
 
@@ -18,12 +19,28 @@ $mastodon_api->set_token($login['html']['access_token'],$login['html']['token_ty
 
 print_r($mastodon_api->timelines_home());
 
-$posts = array();
-$feed = simplexml_load_file(ATOM_FEED);
+$array = json_decode(json_encode(simplexml_load_string(implode(file(ATOM_FEED)))), true);
 foreach ($feed->entry as $item) {
 	if(strtotime($item->updated) >= file_get_contents('lastsend.txt')) {
 		$mastodon_api->post_statuses(array('status'=>'[BOT] « '.$item->title.' » '.$item->link['href']));
 	}
 }
+foreach($array['entry'] as $item) {
+	$hashtag = '';
+	foreach($item['category'] as $tags) {
+		if(isset($tags['@attributes'])) {
+			if(!in_array($tags['@attributes']['label'], $ban_tags)) {
+				$hashtag .= '#'.$tags['@attributes']['label'].' ';
+			}
+		}
+		else {
+			if(!in_array($tags['label'], $ban_tags)) {
+				$hashtag .= '#'.$tags['label'].' ';
+			}
+		}
+	}
+	$mastodon_api->post_statuses(array('status'=>'« '.$item['title'].' » '.$item['link']['@attributes']['href'].' '.$hashtag));
+	// echo '« '.$item['title'].' » '.$item['link']['@attributes']['href'].' '.$hashtag.'<br>';
+}
+
 file_put_contents('lastsend.txt', time());
-print_r($posts);
