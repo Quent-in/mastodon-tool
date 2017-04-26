@@ -39,8 +39,10 @@ foreach($array['entry'] as $item) {
 			}
 		}
 	}
-	$mastodon_api->post_statuses(array('status'=>'« '.$item['title'].' » '.$item['link']['@attributes']['href'].' '.$hashtag));
-	// echo '« '.$item['title'].' » '.$item['link']['@attributes']['href'].' '.$hashtag.'<br>';
+	if(strtotime($item['updated']) >= file_get_contents('lastsend.txt')) { 
+		$mastodon_api->post_statuses(array('status'=>'« '.$item['title'].' » '.$item['link']['@attributes']['href'].' '.$hashtag));
+		echo '« '.$item['title'].' » '.$item['link']['@attributes']['href'].' '.$hashtag.'<br>';
+	}
 }
 
 file_put_contents('lastsend.txt', time());
