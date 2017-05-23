@@ -2,5 +2,5 @@ Quelques scripts pour faire joujou avec Mastodon, le fameux réseau social :
 - Elephia, c'est pour publier des flux atom sur son compte ;
 - Karnage, pour supprimer son compte (enfin, le vider, il est apparament impossible de le supprimer) ;
 - La gazette du Mamouth, c'est l'inverse d'éléphia : c'est récupérer sa timeline pour la convertir en flux Atom ;
-
+- Carnet : transformer ses pouets en message de blog
 Basta !
